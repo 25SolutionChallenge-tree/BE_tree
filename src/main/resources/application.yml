@@ -1,0 +1,29 @@
+# Email Configuration
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=your-email@gmail.com
+spring.mail.password=your-app-password
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+
+# Custom Properties
+app.base-url=http://localhost:8080
+  
+# OAuth2 Client Configuration
+spring.security.oauth2.client.registration.google.client-id=your-google-client-id
+spring.security.oauth2.client.registration.google.client-secret=your-google-client-secret
+spring.security.oauth2.client.registration.google.scope=email,profile
+
+spring.security.oauth2.client.registration.facebook.client-id=your-facebook-app-id
+spring.security.oauth2.client.registration.facebook.client-secret=your-facebook-app-secret
+spring.security.oauth2.client.registration.facebook.scope=email,public_profile
+  
+# Swagger Properties
+springdoc.api-docs.path=/v3/api-docs
+springdoc.swagger-ui.path=/swagger-ui.html
+springdoc.swagger-ui.operationsSorter=method
+springdoc.swagger-ui.tagsSorter=alpha
+springdoc.swagger-ui.try-it-out-enabled=true
+springdoc.swagger-ui.filter=true
+springdoc.packages-to-scan=asia.canopy.tree.controller
+springdoc.paths-to-match=/api/**
