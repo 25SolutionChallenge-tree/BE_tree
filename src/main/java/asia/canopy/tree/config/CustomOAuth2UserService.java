@@ -9,6 +9,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -52,11 +53,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             name = (String) attributes.get("name");
             id = (String) attributes.get("id");
         } else {
-            throw new OAuth2AuthenticationException("Login with " + registrationId + " is not supported");
+            OAuth2Error error = new OAuth2Error("unsupported_provider",
+                    "Login with " + registrationId + " is not supported",
+                    null);
+            throw new OAuth2AuthenticationException(error);
         }
 
         if (!StringUtils.hasText(email)) {
-            throw new OAuth2AuthenticationException("Email not found from OAuth2 provider");
+            OAuth2Error error = new OAuth2Error("email_not_found",
+                    "Email not found from OAuth2 provider",
+                    null);
+            throw new OAuth2AuthenticationException(error);
         }
 
         Optional<User> userOptional = userRepository.findByEmail(email);
@@ -65,9 +72,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if (userOptional.isPresent()) {
             user = userOptional.get();
             if (!user.getProvider().equals(AuthProvider.valueOf(registrationId.toUpperCase()))) {
-                throw new OAuth2AuthenticationException("You are signed up with " +
-                        user.getProvider() + ". Please use your " + user.getProvider() +
-                        " account to login.");
+                OAuth2Error error = new OAuth2Error("provider_mismatch",
+                        "You are signed up with " + user.getProvider() + ". Please use your " + user.getProvider() + " account to login.",
+                        null);
+                throw new OAuth2AuthenticationException(error);
             }
             user = updateExistingUser(user, name);
         } else {

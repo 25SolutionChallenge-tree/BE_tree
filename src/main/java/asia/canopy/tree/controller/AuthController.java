@@ -2,6 +2,7 @@ package asia.canopy.tree.controller;
 
 import asia.canopy.tree.domain.User;
 import asia.canopy.tree.dto.RegistrationDto;
+import asia.canopy.tree.repository.UserRepository;
 import asia.canopy.tree.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -12,11 +13,16 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Optional;
+
 @Controller
 public class AuthController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired  // 추가
+    private UserRepository userRepository;
 
     @GetMapping("/login")
     public String showLoginPage() {
@@ -52,6 +58,12 @@ public class AuthController {
         boolean verified = userService.verifyEmail(token);
 
         if (verified) {
+            // 이메일을 세션에 저장
+            Optional<User> user = userRepository.findByVerificationToken(token);
+            if (user.isPresent()) {
+                session.setAttribute("email", user.get().getEmail());
+            }
+
             session.setAttribute("verifiedEmail", "true");
             redirectAttributes.addFlashAttribute("success", "Email verified successfully! Please set your password.");
             return "redirect:/set-password";
