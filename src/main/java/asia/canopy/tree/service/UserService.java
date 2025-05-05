@@ -1,6 +1,7 @@
 package asia.canopy.tree.service;
 
 import asia.canopy.tree.domain.AuthProvider;
+import asia.canopy.tree.domain.Avatar;
 import asia.canopy.tree.domain.User;
 import asia.canopy.tree.repository.UserRepository;
 import jakarta.mail.MessagingException;
@@ -33,8 +34,9 @@ public class UserService {
     @Value("${app.base-url}")
     private String baseUrl;
 
+    // 1단계: 이메일 회원가입
     @Transactional
-    public User registerUser(String email, String name) {
+    public User registerUser(String email) {
         if (userRepository.existsByEmail(email)) {
             throw new RuntimeException("Email is already in use");
         }
@@ -43,17 +45,15 @@ public class UserService {
 
         User user = User.builder()
                 .email(email)
-                .name(name)
                 .provider(AuthProvider.LOCAL)
                 .emailVerified(false)
+                .profileCompleted(false)  // 프로필 미완성 상태
                 .verificationToken(verificationToken)
                 .verificationTokenExpiry(LocalDateTime.now().plusHours(24))
                 .build();
 
         User savedUser = userRepository.save(user);
-
         sendVerificationEmail(user);
-
         return savedUser;
     }
 
@@ -68,7 +68,7 @@ public class UserService {
             helper.setSubject("Email Verification");
             helper.setText(
                     "<html><body>" +
-                            "<h2>Hello " + user.getName() + "!</h2>" +
+                            "<h2>Hello!</h2>" +
                             "<p>Thank you for registering. Please click on the link below to verify your email address:</p>" +
                             "<p><a href=\"" + verificationUrl + "\">Verify Email</a></p>" +
                             "<p>This link will expire in 24 hours.</p>" +
@@ -99,7 +99,6 @@ public class UserService {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -114,5 +113,27 @@ public class UserService {
         } else {
             throw new RuntimeException("User not found");
         }
+    }
+
+    // 2단계: 프로필 설정
+    @Transactional
+    public User completeProfile(String email, String nickname, Avatar avatar) {
+        Optional<User> userOpt = userRepository.findByEmail(email);
+
+        if (userOpt.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+
+        User user = userOpt.get();
+
+        if (!user.isEmailVerified()) {
+            throw new RuntimeException("Email not verified");
+        }
+
+        user.setNickname(nickname);
+        user.setAvatar(avatar);
+        user.setProfileCompleted(true);
+
+        return userRepository.save(user);
     }
 }

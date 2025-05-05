@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "users")
@@ -25,7 +24,12 @@ public class User {
 
     private String password;
 
-    private String name;
+    private String nickname;
+
+    @Enumerated(EnumType.STRING)
+    private Avatar avatar;
+
+    private boolean profileCompleted;  // 프로필 설정 완료 여부
 
     @Enumerated(EnumType.STRING)
     private AuthProvider provider;

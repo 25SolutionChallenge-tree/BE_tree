@@ -1,5 +1,6 @@
 package asia.canopy.tree.controller;
 
+import asia.canopy.tree.config.CustomUserDetails;
 import asia.canopy.tree.domain.User;
 import asia.canopy.tree.dto.*;
 import asia.canopy.tree.service.UserService;
@@ -8,11 +9,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,16 +29,16 @@ public class AuthApiController {
     @Operation(summary = "Register a new user", description = "Creates a new user account and sends verification email")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User registered successfully",
-                    content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ApiResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input data",
-                    content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ApiResponseDto.class))),
             @ApiResponse(responseCode = "409", description = "Email already exists",
-                    content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+                    content = @Content(schema = @Schema(implementation = ApiResponseDto.class)))
     })
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegistrationDto registrationDto) {
         try {
-            User user = userService.registerUser(registrationDto.getEmail(), registrationDto.getName());
+            User user = userService.registerUser(registrationDto.getEmail());
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new ApiResponseDto(true, "User registered successfully. Please check your email for verification."));
         } catch (RuntimeException e) {
@@ -50,9 +53,9 @@ public class AuthApiController {
     @Operation(summary = "Verify email", description = "Verifies user's email using the token sent to their email")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Email verified successfully",
-                    content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ApiResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "Invalid or expired token",
-                    content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+                    content = @Content(schema = @Schema(implementation = ApiResponseDto.class)))
     })
     @GetMapping("/verify")
     public ResponseEntity<?> verifyEmail(@RequestParam String token) {
@@ -69,9 +72,9 @@ public class AuthApiController {
     @Operation(summary = "Set password", description = "Sets password for a verified user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Password set successfully",
-                    content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ApiResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input or user not found",
-                    content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+                    content = @Content(schema = @Schema(implementation = ApiResponseDto.class)))
     })
     @PostMapping("/set-password")
     public ResponseEntity<?> setPassword(@Valid @RequestBody PasswordDto passwordDto) {
@@ -84,12 +87,57 @@ public class AuthApiController {
         }
     }
 
+    @Operation(summary = "Set up user profile",
+            description = "Sets up nickname and avatar for authenticated user",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Profile set up successfully",
+                    content = @Content(schema = @Schema(implementation = ApiResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input or user not found",
+                    content = @Content(schema = @Schema(implementation = ApiResponseDto.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - not logged in",
+                    content = @Content(schema = @Schema(implementation = ApiResponseDto.class)))
+    })
+    @PostMapping("/profile-setup")
+    public ResponseEntity<?> setupProfile(@Valid @RequestBody ProfileSetupDto profileSetupDto,
+                                          Authentication authentication) {
+        // 디버깅 로그 추가
+        System.out.println("=== Authentication Debug Info ===");
+        System.out.println("Authentication object: " + authentication);
+        System.out.println("Is null: " + (authentication == null));
+        if (authentication != null) {
+            System.out.println("isAuthenticated: " + authentication.isAuthenticated());
+            System.out.println("Principal: " + authentication.getPrincipal());
+            System.out.println("Principal class: " + authentication.getPrincipal().getClass());
+        }
+        System.out.println("================================");
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponseDto(false, "User not authenticated"));
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        try {
+            User user = userService.completeProfile(
+                    userDetails.getEmail(),
+                    profileSetupDto.getNickname(),
+                    profileSetupDto.getAvatar()
+            );
+            return ResponseEntity.ok(new ApiResponseDto(true, "Profile setup completed successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponseDto(false, e.getMessage()));
+        }
+    }
+
     @Operation(summary = "Login", description = "Login with email and password")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Login successful",
                     content = @Content(schema = @Schema(implementation = LoginResponseDto.class))),
             @ApiResponse(responseCode = "401", description = "Invalid credentials",
-                    content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+                    content = @Content(schema = @Schema(implementation = ApiResponseDto.class)))
     })
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginDto loginDto) {

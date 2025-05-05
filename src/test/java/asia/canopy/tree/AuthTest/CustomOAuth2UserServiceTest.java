@@ -39,10 +39,10 @@ class CustomOAuth2UserServiceTest {
 
         User existingUser = User.builder()
                 .email("test@gmail.com")
-                .name("Test User")
                 .provider(AuthProvider.FACEBOOK)
                 .providerId("67890")
                 .emailVerified(true)
+                .profileCompleted(false)
                 .build();
 
         when(userRepository.findByEmail("test@gmail.com")).thenReturn(Optional.of(existingUser));
@@ -124,10 +124,10 @@ class CustomOAuth2UserServiceTest {
 
         User savedUser = User.builder()
                 .email("test@gmail.com")
-                .name("Test User")
                 .provider(AuthProvider.GOOGLE)
                 .providerId("12345")
                 .emailVerified(true)
+                .profileCompleted(false)
                 .build();
 
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
@@ -135,7 +135,6 @@ class CustomOAuth2UserServiceTest {
         // When
         String registrationId = "google";
         String email = "test@gmail.com";
-        String name = "Test User";
         String id = "12345";
 
         Optional<User> userOptional = userRepository.findByEmail(email);
@@ -144,8 +143,8 @@ class CustomOAuth2UserServiceTest {
                     .provider(AuthProvider.valueOf(registrationId.toUpperCase()))
                     .providerId(id)
                     .email(email)
-                    .name(name)
                     .emailVerified(true)
+                    .profileCompleted(false)
                     .build();
 
             user = userRepository.save(user);

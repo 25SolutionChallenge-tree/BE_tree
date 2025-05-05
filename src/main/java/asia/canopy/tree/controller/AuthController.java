@@ -1,12 +1,16 @@
 package asia.canopy.tree.controller;
 
+import asia.canopy.tree.config.CustomUserDetails;
 import asia.canopy.tree.domain.User;
+import asia.canopy.tree.dto.PasswordDto;
+import asia.canopy.tree.dto.ProfileSetupDto;
 import asia.canopy.tree.dto.RegistrationDto;
 import asia.canopy.tree.repository.UserRepository;
 import asia.canopy.tree.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,7 +25,7 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
-    @Autowired  // 추가
+    @Autowired
     private UserRepository userRepository;
 
     @GetMapping("/login")
@@ -35,6 +39,7 @@ public class AuthController {
         return "register";
     }
 
+    // 1단계: 이메일 회원가입
     @PostMapping("/register")
     public String registerUser(@Valid @ModelAttribute("registrationDto") RegistrationDto registrationDto,
                                BindingResult result,
@@ -44,7 +49,7 @@ public class AuthController {
         }
 
         try {
-            userService.registerUser(registrationDto.getEmail(), registrationDto.getName());
+            userService.registerUser(registrationDto.getEmail());
             redirectAttributes.addFlashAttribute("success", "Registration successful! Please check your email for verification.");
             return "redirect:/login";
         } catch (Exception e) {
@@ -64,7 +69,7 @@ public class AuthController {
                 session.setAttribute("email", user.get().getEmail());
             }
 
-            session.setAttribute("verifiedEmail", "true");
+            session.setAttribute("verifiedEmail", true);
             redirectAttributes.addFlashAttribute("success", "Email verified successfully! Please set your password.");
             return "redirect:/set-password";
         } else {
@@ -75,7 +80,8 @@ public class AuthController {
 
     @GetMapping("/set-password")
     public String showSetPasswordPage(Model model, HttpSession session) {
-        if (session.getAttribute("verifiedEmail") == null) {
+        Boolean verifiedEmail = (Boolean) session.getAttribute("verifiedEmail");
+        if (verifiedEmail == null || !verifiedEmail) {
             return "redirect:/login";
         }
 
@@ -84,7 +90,7 @@ public class AuthController {
     }
 
     @PostMapping("/set-password")
-    public String setPassword(@Valid @ModelAttribute("passwordDto") asia.canopy.tree.dto.PasswordDto passwordDto,
+    public String setPassword(@Valid @ModelAttribute("passwordDto") PasswordDto passwordDto,
                               BindingResult result,
                               RedirectAttributes redirectAttributes,
                               HttpSession session) {
@@ -111,6 +117,47 @@ public class AuthController {
         }
     }
 
-    private class PasswordDto {
+    // 2단계: 프로필 설정 페이지
+    @GetMapping("/profile-setup")
+    public String showProfileSetupPage(Model model, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        User user = userRepository.findByEmail(userDetails.getEmail()).orElseThrow();
+
+        if (user.isProfileCompleted()) {
+            return "redirect:/dashboard";
+        }
+
+        model.addAttribute("profileSetupDto", new ProfileSetupDto());
+        return "profile-setup";
+    }
+
+    // 2단계: 프로필 설정 처리
+    @PostMapping("/profile-setup")
+    public String setupProfile(@Valid @ModelAttribute("profileSetupDto") ProfileSetupDto profileSetupDto,
+                               BindingResult result,
+                               Authentication authentication,
+                               RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            return "profile-setup";
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        try {
+            userService.completeProfile(
+                    userDetails.getEmail(),
+                    profileSetupDto.getNickname(),
+                    profileSetupDto.getAvatar()
+            );
+            redirectAttributes.addFlashAttribute("success", "Profile setup completed!");
+            return "redirect:/dashboard";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/profile-setup";
+        }
     }
 }

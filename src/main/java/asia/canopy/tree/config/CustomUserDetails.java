@@ -1,5 +1,6 @@
 package asia.canopy.tree.config;
 
+import asia.canopy.tree.domain.Avatar;
 import asia.canopy.tree.domain.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -7,7 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -67,7 +67,7 @@ public class CustomUserDetails implements OAuth2User, UserDetails {
 
     @Override
     public String getName() {
-        return user.getName();
+        return user.getNickname();  // name 대신 nickname 사용
     }
 
     public Long getId() {
@@ -76,5 +76,13 @@ public class CustomUserDetails implements OAuth2User, UserDetails {
 
     public String getEmail() {
         return user.getEmail();
+    }
+
+    public String getNickname() {
+        return user.getNickname();
+    }
+
+    public Avatar getAvatar() {
+        return user.getAvatar();
     }
 }

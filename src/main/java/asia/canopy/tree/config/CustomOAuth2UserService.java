@@ -5,14 +5,10 @@ import asia.canopy.tree.domain.User;
 import asia.canopy.tree.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.Map;
 import java.util.Optional;
@@ -24,13 +20,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private UserRepository userRepository;
 
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
+    public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) {
         OAuth2User oAuth2User = super.loadUser(oAuth2UserRequest);
 
         try {
             return processOAuth2User(oAuth2UserRequest, oAuth2User);
-        } catch (AuthenticationException ex) {
-            throw ex;
         } catch (Exception ex) {
             throw new InternalAuthenticationServiceException(ex.getMessage(), ex.getCause());
         }
@@ -41,29 +35,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
         String email;
-        String name;
         String id;
 
         if (registrationId.equals("google")) {
             email = (String) attributes.get("email");
-            name = (String) attributes.get("name");
             id = (String) attributes.get("sub");
         } else if (registrationId.equals("facebook")) {
             email = (String) attributes.get("email");
-            name = (String) attributes.get("name");
             id = (String) attributes.get("id");
         } else {
-            OAuth2Error error = new OAuth2Error("unsupported_provider",
-                    "Login with " + registrationId + " is not supported",
-                    null);
-            throw new OAuth2AuthenticationException(error);
-        }
-
-        if (!StringUtils.hasText(email)) {
-            OAuth2Error error = new OAuth2Error("email_not_found",
-                    "Email not found from OAuth2 provider",
-                    null);
-            throw new OAuth2AuthenticationException(error);
+            throw new RuntimeException("Unsupported provider");
         }
 
         Optional<User> userOptional = userRepository.findByEmail(email);
@@ -71,34 +52,22 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         if (userOptional.isPresent()) {
             user = userOptional.get();
-            if (!user.getProvider().equals(AuthProvider.valueOf(registrationId.toUpperCase()))) {
-                OAuth2Error error = new OAuth2Error("provider_mismatch",
-                        "You are signed up with " + user.getProvider() + ". Please use your " + user.getProvider() + " account to login.",
-                        null);
-                throw new OAuth2AuthenticationException(error);
-            }
-            user = updateExistingUser(user, name);
         } else {
-            user = registerNewUser(registrationId, id, email, name);
+            user = registerNewSocialUser(registrationId, id, email);
         }
 
         return new CustomUserDetails(user, attributes);
     }
 
-    private User registerNewUser(String registrationId, String id, String email, String name) {
+    private User registerNewSocialUser(String registrationId, String id, String email) {
         User user = User.builder()
                 .provider(AuthProvider.valueOf(registrationId.toUpperCase()))
                 .providerId(id)
                 .email(email)
-                .name(name)
                 .emailVerified(true)
+                .profileCompleted(false)
                 .build();
 
-        return userRepository.save(user);
-    }
-
-    private User updateExistingUser(User user, String name) {
-        user.setName(name);
         return userRepository.save(user);
     }
 }
