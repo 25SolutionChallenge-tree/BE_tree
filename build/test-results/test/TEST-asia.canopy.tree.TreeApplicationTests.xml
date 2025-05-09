@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="asia.canopy.tree.TreeApplicationTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-05-09T15:25:04.447Z" hostname="gim-yejiui-MacBookPro.local" time="0.239">
+  <properties/>
+  <testcase name="contextLoads()" classname="asia.canopy.tree.TreeApplicationTests" time="0.239"/>
+  <system-out><![CDATA[00:25:02.912 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [asia.canopy.tree.TreeApplicationTests]: TreeApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+00:25:02.942 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration asia.canopy.tree.TreeApplication for test class asia.canopy.tree.TreeApplicationTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.1)
+
+2025-05-10T00:25:03.054+09:00  INFO 99201 --- [    Test worker] asia.canopy.tree.TreeApplicationTests    : Starting TreeApplicationTests using Java 21.0.5 with PID 99201 (started by eeddii in /Users/eeddii/Desktop/BE_tree)
+2025-05-10T00:25:03.054+09:00 DEBUG 99201 --- [    Test worker] asia.canopy.tree.TreeApplicationTests    : Running with Spring Boot v3.3.1, Spring v6.1.10
+2025-05-10T00:25:03.054+09:00  INFO 99201 --- [    Test worker] asia.canopy.tree.TreeApplicationTests    : The following 1 profile is active: "test"
+2025-05-10T00:25:03.064+09:00 DEBUG 99201 --- [    Test worker] o.s.w.c.s.GenericWebApplicationContext   : Refreshing org.springframework.web.context.support.GenericWebApplicationContext@6d367020
+2025-05-10T00:25:03.308+09:00  INFO 99201 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-05-10T00:25:03.326+09:00  INFO 99201 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 16 ms. Found 3 JPA repository interfaces.
+2025-05-10T00:25:03.476+09:00  INFO 99201 --- [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-10T00:25:03.494+09:00  INFO 99201 --- [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2025-05-10T00:25:03.504+09:00  INFO 99201 --- [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-05-10T00:25:03.586+09:00  INFO 99201 --- [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-05-10T00:25:03.593+09:00  INFO 99201 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-05-10T00:25:03.655+09:00  INFO 99201 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.mariadb.jdbc.Connection@31533eb1
+2025-05-10T00:25:03.656+09:00  INFO 99201 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-05-10T00:25:03.671+09:00  WARN 99201 --- [    Test worker] org.hibernate.orm.deprecation            : HHH90000025: MariaDBDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-05-10T00:25:03.945+09:00  INFO 99201 --- [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-05-10T00:25:04.006+09:00  INFO 99201 --- [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-05-10T00:25:04.160+09:00  INFO 99201 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-05-10T00:25:04.225+09:00  WARN 99201 --- [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-05-10T00:25:04.271+09:00 DEBUG 99201 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : 18 mappings in 'requestMappingHandlerMapping'
+2025-05-10T00:25:04.293+09:00 DEBUG 99201 --- [    Test worker] o.s.w.s.handler.SimpleUrlHandlerMapping  : Patterns [/webjars/**, /**, /swagger-ui*/*swagger-initializer.js, /swagger-ui*/**] in 'resourceHandlerMapping'
+2025-05-10T00:25:04.314+09:00 DEBUG 99201 --- [    Test worker] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, CorsFilter, LogoutFilter, OAuth2AuthorizationRequestRedirectFilter, OAuth2LoginAuthenticationFilter, JwtAuthenticationFilter, DefaultLoginPageGeneratingFilter, DefaultLogoutPageGeneratingFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+2025-05-10T00:25:04.374+09:00 DEBUG 99201 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-05-10T00:25:04.385+09:00 DEBUG 99201 --- [    Test worker] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 2 @ExceptionHandler, 1 ResponseBodyAdvice
+2025-05-10T00:25:04.442+09:00  INFO 99201 --- [    Test worker] asia.canopy.tree.TreeApplicationTests    : Started TreeApplicationTests in 1.454 seconds (process running for 1.816)
+]]></system-out>
+  <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (/Users/eeddii/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.14.17/e3c251a39dc90badaf71c83427ba46840f219d8d/byte-buddy-agent-1.14.17.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>
