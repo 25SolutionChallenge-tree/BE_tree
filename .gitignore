@@ -1,0 +1,7 @@
+# Exclude application.properties files
+src/main/resources/application.properties
+
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
