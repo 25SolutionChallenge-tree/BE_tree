@@ -1,107 +1,64 @@
 package asia.canopy.tree.config;
 
-import asia.canopy.tree.domain.User;
-import asia.canopy.tree.repository.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import asia.canopy.tree.config.jwt.JwtAuthenticationFilter;
+import asia.canopy.tree.config.jwt.JwtTokenProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
-import org.springframework.http.MediaType;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final UserRepository userRepository;
-
-    public SecurityConfig(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final JwtTokenProvider jwtTokenProvider;
+    private final CustomOAuth2UserService oAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/register/**", "/verify/**", "/login/**",
-                                "/set-password", "/css/**", "/js/**",
-                                "/api/auth/register", "/api/auth/verify",
-                                "/api/auth/set-password", "/api/auth/login").permitAll()
-                        .requestMatchers("/profile-setup").authenticated()
-                        .requestMatchers("/api/auth/profile-setup").authenticated()
-                        .anyRequest().authenticated()
-                )
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .successHandler(authenticationSuccessHandler())
-                        .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutSuccessUrl("/")
-                        .permitAll()
-                )
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> {
+                    // Swagger UI 접근 허용
+                    auth.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/api-docs/**").permitAll();
+                    auth.requestMatchers("/api/auth/**", "/oauth2/**", "/login/**").permitAll();
+                    auth.requestMatchers("/api/user/verify/**").permitAll();
+                    auth.requestMatchers("/api/user/profile/**").authenticated();
+                    auth.anyRequest().authenticated();
+                })
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login")
-                        .successHandler(authenticationSuccessHandler())
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService())
-                        )
-                )
-                .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            String requestUri = request.getRequestURI();
-                            if (requestUri.startsWith("/api/")) {
-                                // API 경로인 경우 JSON 응답 반환
-                                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                                response.setStatus(HttpStatus.UNAUTHORIZED.value());
-
-                                // JSON 응답 생성
-                                Map<String, Object> responseData = new HashMap<>();
-                                responseData.put("success", false);
-                                responseData.put("message", "User not authenticated");
-
-                                ObjectMapper mapper = new ObjectMapper();
-                                PrintWriter out = response.getWriter();
-                                out.print(mapper.writeValueAsString(responseData));
-                                out.flush();
-                            } else {
-                                // 웹 페이지 경로인 경우 로그인 페이지로 리다이렉트
-                                response.sendRedirect("/login");
-                            }
-                        })
+                        .authorizationEndpoint(endpoint -> endpoint.baseUri("/oauth2/authorize"))
+                        .redirectionEndpoint(endpoint -> endpoint.baseUri("/login/oauth2/code/*"))
+                        .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService))
+                        .successHandler(oAuth2SuccessHandler)
                 );
+
+        http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    // 인증 성공 시 프로필 완성 여부 확인
     @Bean
-    public AuthenticationSuccessHandler authenticationSuccessHandler() {
-        return (request, response, authentication) -> {
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            User user = userRepository.findByEmail(userDetails.getEmail()).orElseThrow();
-
-            if (!user.isProfileCompleted()) {
-                response.sendRedirect("/profile-setup");
-            } else {
-                response.sendRedirect("/dashboard");
-            }
-        };
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
@@ -110,47 +67,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CustomOAuth2UserService customOAuth2UserService() {
-        return new CustomOAuth2UserService();
-    }
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        configuration.setAllowCredentials(false);
 
-    @Bean
-    public ClientRegistrationRepository clientRegistrationRepository() {
-        return new InMemoryClientRegistrationRepository(
-                googleClientRegistration(),
-                facebookClientRegistration()
-        );
-    }
-
-    private ClientRegistration googleClientRegistration() {
-        return ClientRegistration.withRegistrationId("google")
-                .clientId("google-client-id")
-                .clientSecret("google-client-secret")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
-                .scope("openid", "profile", "email")
-                .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
-                .tokenUri("https://www.googleapis.com/oauth2/v4/token")
-                .userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo")
-                .userNameAttributeName(IdTokenClaimNames.SUB)
-                .clientName("Google")
-                .build();
-    }
-
-    private ClientRegistration facebookClientRegistration() {
-        return ClientRegistration.withRegistrationId("facebook")
-                .clientId("facebook-app-id")
-                .clientSecret("facebook-app-secret")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
-                .scope("email", "public_profile")
-                .authorizationUri("https://www.facebook.com/v16.0/dialog/oauth")
-                .tokenUri("https://graph.facebook.com/v16.0/oauth/access_token")
-                .userInfoUri("https://graph.facebook.com/v16.0/me?fields=id,name,email,picture")
-                .userNameAttributeName("id")
-                .clientName("Facebook")
-                .build();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

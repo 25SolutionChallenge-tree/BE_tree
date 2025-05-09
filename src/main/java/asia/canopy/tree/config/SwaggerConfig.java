@@ -1,41 +1,25 @@
 package asia.canopy.tree.config;
 
-import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.info.License;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
-import org.springframework.context.annotation.Bean;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@OpenAPIDefinition(
+        info = @Info(
+                title = "Canopy Tree API",
+                version = "1.0.0",
+                description = "Canopy Tree 서비스 API 문서"
+        )
+)
+@SecurityScheme(
+        name = "bearerAuth",
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        scheme = "bearer"
+)
 public class SwaggerConfig {
-
-    @Bean
-    public OpenAPI openAPI() {
-        String securitySchemeName = "bearerAuth";
-
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Tree Application API")
-                        .description("API Documentation for Tree Application")
-                        .version("v1.0.0")
-                        .contact(new Contact()
-                                .name("Tree Team")
-                                .email("contact@canopy.asia")
-                                .url("https://canopy.asia"))
-                        .license(new License()
-                                .name("API License")
-                                .url("https://canopy.asia/licenses")))
-                .addSecurityItem(new SecurityRequirement()
-                        .addList(securitySchemeName))
-                .components(new Components()
-                        .addSecuritySchemes(securitySchemeName, new SecurityScheme()
-                                .name(securitySchemeName)
-                                .type(SecurityScheme.Type.HTTP)
-                                .scheme("bearer")
-                                .bearerFormat("JWT")));
-    }
+    // 빈 구성 - 어노테이션만으로 설정
 }

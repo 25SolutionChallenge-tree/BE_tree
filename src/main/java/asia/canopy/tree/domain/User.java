@@ -1,18 +1,18 @@
 package asia.canopy.tree.domain;
 
+import asia.canopy.tree.dto.OAuth2UserInfo;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
-@Data
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class User {
 
     @Id
@@ -29,31 +29,32 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Avatar avatar;
 
-    private boolean profileCompleted;  // 프로필 설정 완료 여부
-
-    @Enumerated(EnumType.STRING)
-    private AuthProvider provider;
+    private String provider;
 
     private String providerId;
 
     private boolean emailVerified;
 
-    private String verificationToken;
+    private String verificationCode;
 
-    private LocalDateTime verificationTokenExpiry;
+    private LocalDateTime verificationExpiry;
 
-    private LocalDateTime createdAt;
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     private LocalDateTime updatedAt;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public boolean isProfileComplete() {
+        return nickname != null && avatar != null;
+    }
+
+    public void updateFromOAuth2UserInfo(OAuth2UserInfo oAuth2UserInfo) {
+        this.email = oAuth2UserInfo.getEmail();
+        this.providerId = oAuth2UserInfo.getId();
     }
 }
