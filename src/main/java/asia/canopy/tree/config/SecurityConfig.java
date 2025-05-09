@@ -29,6 +29,15 @@ public class SecurityConfig {
     private final CustomOAuth2UserService oAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
+    private static final String[] SWAGGER_LIST = {
+            "/swagger-ui/**",
+            "/h2-console/**",
+            "/favicon.ico",
+            "/error",
+            "/swagger-resources/**",
+            "/v3/api-docs/**"
+    };
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -37,8 +46,8 @@ public class SecurityConfig {
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
-                    // Swagger UI 접근 허용
-                    auth.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/api-docs/**").permitAll();
+                    // Swagger UI 및 기타 공개 리소스 접근 허용
+                    auth.requestMatchers(SWAGGER_LIST).permitAll();
                     auth.requestMatchers("/api/auth/**", "/oauth2/**", "/login/**").permitAll();
                     auth.requestMatchers("/api/user/verify/**").permitAll();
                     auth.requestMatchers("/api/user/profile/**").authenticated();

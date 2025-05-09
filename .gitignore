@@ -1,0 +1,2 @@
+# Exclude application.properties files
+src/main/resources/application.properties
