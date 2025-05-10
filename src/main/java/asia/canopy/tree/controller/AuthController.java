@@ -27,14 +27,13 @@ public class AuthController {
     private final AuthService authService;
     private final EmailService emailService;
 
-
-
     @Operation(summary = "이메일 유효성 검사", description = "이메일이 유효하고 가입되지 않았는지 확인하고 인증 이메일을 발송합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "인증 이메일 발송 성공"),
             @ApiResponse(responseCode = "409", description = "이미 가입된 이메일",
                     content = @Content(schema = @Schema(implementation = String.class)))
     })
+
     @PostMapping("/check-email")
     public ResponseEntity<?> checkEmail(@RequestParam String email) {
         if (authService.existsByEmail(email)) {
@@ -54,9 +53,12 @@ public class AuthController {
             @ApiResponse(responseCode = "409", description = "이미 가입된 이메일",
                     content = @Content(schema = @Schema(implementation = String.class)))
     })
+
     @PostMapping("/verified-signup")
     public ResponseEntity<?> registerVerifiedUser(@Valid @RequestBody EmailVerifiedSignUpRequest signUpRequest) {
+
         authService.registerVerifiedUser(signUpRequest);
+
         return ResponseEntity.ok().body("회원 가입이 완료되었습니다.");
     }
 
