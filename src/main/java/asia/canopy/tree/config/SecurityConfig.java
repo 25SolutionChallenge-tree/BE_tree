@@ -91,7 +91,9 @@ public class SecurityConfig {
                 "https://api.canopy.asia",
                 "http://api.canopy.asia",
                 "http://localhost:3000",
-                "http://localhost:8080"
+                "http://localhost:8080",
+                "http://api.canopy.asia:8080",
+                "https://api.canopy.asia:8080"
         );
 
         configuration.setAllowedOrigins(allowedOrigins);
