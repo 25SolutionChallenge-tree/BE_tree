@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="asia.canopy.tree.TreeApplicationTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-05-09T16:50:42.781Z" hostname="gim-yejiui-MacBookPro.local" time="0.241">
+<testsuite name="asia.canopy.tree.TreeApplicationTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-05-10T01:47:26.036Z" hostname="gim-yejiui-MacBookPro.local" time="0.24">
   <properties/>
-  <testcase name="contextLoads()" classname="asia.canopy.tree.TreeApplicationTests" time="0.241"/>
-  <system-out><![CDATA[01:50:41.144 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [asia.canopy.tree.TreeApplicationTests]: TreeApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-01:50:41.176 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration asia.canopy.tree.TreeApplication for test class asia.canopy.tree.TreeApplicationTests
+  <testcase name="contextLoads()" classname="asia.canopy.tree.TreeApplicationTests" time="0.24"/>
+  <system-out><![CDATA[10:47:24.459 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [asia.canopy.tree.TreeApplicationTests]: TreeApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+10:47:24.490 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration asia.canopy.tree.TreeApplication for test class asia.canopy.tree.TreeApplicationTests
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -14,82 +14,30 @@
 
  :: Spring Boot ::                (v3.3.1)
 
-2025-05-10T01:50:41.287+09:00  INFO 1191 --- [    Test worker] asia.canopy.tree.TreeApplicationTests    : Starting TreeApplicationTests using Java 21.0.5 with PID 1191 (started by eeddii in /Users/eeddii/Desktop/BE_tree)
-2025-05-10T01:50:41.287+09:00 DEBUG 1191 --- [    Test worker] asia.canopy.tree.TreeApplicationTests    : Running with Spring Boot v3.3.1, Spring v6.1.10
-2025-05-10T01:50:41.287+09:00  INFO 1191 --- [    Test worker] asia.canopy.tree.TreeApplicationTests    : The following 1 profile is active: "test"
-2025-05-10T01:50:41.296+09:00 DEBUG 1191 --- [    Test worker] o.s.w.c.s.GenericWebApplicationContext   : Refreshing org.springframework.web.context.support.GenericWebApplicationContext@72458efc
-2025-05-10T01:50:41.550+09:00  INFO 1191 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-05-10T01:50:41.569+09:00  INFO 1191 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 16 ms. Found 3 JPA repository interfaces.
-2025-05-10T01:50:41.719+09:00  INFO 1191 --- [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2025-05-10T01:50:41.737+09:00  INFO 1191 --- [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
-2025-05-10T01:50:41.747+09:00  INFO 1191 --- [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2025-05-10T01:50:41.826+09:00  INFO 1191 --- [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-05-10T01:50:41.833+09:00  INFO 1191 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2025-05-10T01:50:41.900+09:00  INFO 1191 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.mariadb.jdbc.Connection@762da62b
-2025-05-10T01:50:41.900+09:00  INFO 1191 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2025-05-10T01:50:41.916+09:00  WARN 1191 --- [    Test worker] org.hibernate.orm.deprecation            : HHH90000025: MariaDBDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2025-05-10T01:50:42.195+09:00  INFO 1191 --- [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-Hibernate: 
-    alter table if exists diary 
-       drop 
-       foreign key if exists FKcqdb5m8qefi1ovvijnm0yj9gs
-Hibernate: 
-    drop table if exists diary
-Hibernate: 
-    drop table if exists users
-Hibernate: 
-    drop table if exists verification_tokens
-Hibernate: 
-    create table diary (
-        created_at datetime(6),
-        diary_id bigint not null auto_increment,
-        id bigint,
-        diary varchar(200),
-        qtype enum ('dinner','lunch','morning'),
-        primary key (diary_id)
-    ) engine=InnoDB
-Hibernate: 
-    create table users (
-        email_verified bit not null,
-        created_at datetime(6),
-        id bigint not null auto_increment,
-        updated_at datetime(6),
-        verification_expiry datetime(6),
-        email varchar(255) not null,
-        nickname varchar(255),
-        password varchar(255),
-        provider varchar(255),
-        provider_id varchar(255),
-        verification_code varchar(255),
-        avatar enum ('GREEN','PINK','YELLOW'),
-        primary key (id)
-    ) engine=InnoDB
-Hibernate: 
-    create table verification_tokens (
-        created_at datetime(6),
-        expiry_date datetime(6) not null,
-        id bigint not null auto_increment,
-        email varchar(255) not null,
-        token varchar(255) not null,
-        primary key (id)
-    ) engine=InnoDB
-Hibernate: 
-    alter table if exists users 
-       add constraint UK6dotkott2kjsp8vw4d0m25fb7 unique (email)
-Hibernate: 
-    alter table if exists diary 
-       add constraint FKcqdb5m8qefi1ovvijnm0yj9gs 
-       foreign key (id) 
-       references users (id)
-2025-05-10T01:50:42.339+09:00  INFO 1191 --- [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-05-10T01:50:42.496+09:00  INFO 1191 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
-2025-05-10T01:50:42.562+09:00  WARN 1191 --- [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2025-05-10T01:50:42.607+09:00 DEBUG 1191 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : 18 mappings in 'requestMappingHandlerMapping'
-2025-05-10T01:50:42.632+09:00 DEBUG 1191 --- [    Test worker] o.s.w.s.handler.SimpleUrlHandlerMapping  : Patterns [/webjars/**, /**, /swagger-ui*/*swagger-initializer.js, /swagger-ui*/**] in 'resourceHandlerMapping'
-2025-05-10T01:50:42.655+09:00 DEBUG 1191 --- [    Test worker] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, CorsFilter, LogoutFilter, OAuth2AuthorizationRequestRedirectFilter, OAuth2LoginAuthenticationFilter, JwtAuthenticationFilter, DefaultLoginPageGeneratingFilter, DefaultLogoutPageGeneratingFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
-2025-05-10T01:50:42.713+09:00 DEBUG 1191 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
-2025-05-10T01:50:42.723+09:00 DEBUG 1191 --- [    Test worker] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 2 @ExceptionHandler, 1 ResponseBodyAdvice
-2025-05-10T01:50:42.777+09:00  INFO 1191 --- [    Test worker] asia.canopy.tree.TreeApplicationTests    : Started TreeApplicationTests in 1.557 seconds (process running for 1.925)
+2025-05-10T10:47:24.603+09:00  INFO 7165 --- [    Test worker] asia.canopy.tree.TreeApplicationTests    : Starting TreeApplicationTests using Java 21.0.5 with PID 7165 (started by eeddii in /Users/eeddii/Desktop/BE_tree)
+2025-05-10T10:47:24.604+09:00 DEBUG 7165 --- [    Test worker] asia.canopy.tree.TreeApplicationTests    : Running with Spring Boot v3.3.1, Spring v6.1.10
+2025-05-10T10:47:24.604+09:00  INFO 7165 --- [    Test worker] asia.canopy.tree.TreeApplicationTests    : The following 1 profile is active: "test"
+2025-05-10T10:47:24.614+09:00 DEBUG 7165 --- [    Test worker] o.s.w.c.s.GenericWebApplicationContext   : Refreshing org.springframework.web.context.support.GenericWebApplicationContext@72458efc
+2025-05-10T10:47:24.862+09:00  INFO 7165 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-05-10T10:47:24.881+09:00  INFO 7165 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 16 ms. Found 3 JPA repository interfaces.
+2025-05-10T10:47:25.030+09:00  INFO 7165 --- [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-10T10:47:25.048+09:00  INFO 7165 --- [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2025-05-10T10:47:25.057+09:00  INFO 7165 --- [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-05-10T10:47:25.135+09:00  INFO 7165 --- [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-05-10T10:47:25.143+09:00  INFO 7165 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-05-10T10:47:25.231+09:00  INFO 7165 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.mariadb.jdbc.Connection@79295932
+2025-05-10T10:47:25.232+09:00  INFO 7165 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-05-10T10:47:25.247+09:00  WARN 7165 --- [    Test worker] org.hibernate.orm.deprecation            : HHH90000025: MariaDBDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-05-10T10:47:25.515+09:00  INFO 7165 --- [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-05-10T10:47:25.590+09:00  INFO 7165 --- [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-05-10T10:47:25.743+09:00  INFO 7165 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-05-10T10:47:25.810+09:00  WARN 7165 --- [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-05-10T10:47:25.855+09:00 DEBUG 7165 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : 18 mappings in 'requestMappingHandlerMapping'
+2025-05-10T10:47:25.877+09:00 DEBUG 7165 --- [    Test worker] o.s.w.s.handler.SimpleUrlHandlerMapping  : Patterns [/webjars/**, /**, /swagger-ui*/*swagger-initializer.js, /swagger-ui*/**] in 'resourceHandlerMapping'
+2025-05-10T10:47:25.900+09:00 DEBUG 7165 --- [    Test worker] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, CorsFilter, LogoutFilter, OAuth2AuthorizationRequestRedirectFilter, OAuth2LoginAuthenticationFilter, JwtAuthenticationFilter, DefaultLoginPageGeneratingFilter, DefaultLogoutPageGeneratingFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+2025-05-10T10:47:25.961+09:00 DEBUG 7165 --- [    Test worker] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-05-10T10:47:25.971+09:00 DEBUG 7165 --- [    Test worker] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 2 @ExceptionHandler, 1 ResponseBodyAdvice
+2025-05-10T10:47:26.031+09:00  INFO 7165 --- [    Test worker] asia.canopy.tree.TreeApplicationTests    : Started TreeApplicationTests in 1.493 seconds (process running for 1.869)
 ]]></system-out>
   <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (/Users/eeddii/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.14.17/e3c251a39dc90badaf71c83427ba46840f219d8d/byte-buddy-agent-1.14.17.jar)
 WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
