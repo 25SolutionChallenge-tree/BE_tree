@@ -1,0 +1,11 @@
+/build
+src/test/resources/application-test.properties
+src/main/resources/application.properties
+/.gradle
+/gradle
+src/main/.DS_Store
+src/main/java/.DS_Store
+src/main/java/asia/.DS_Store
+src/main/java/asia/canopy/.DS_Store
+src/.DS_Store
+.DS_Store
