@@ -5,7 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="893b8e85-0642-4850-96ab-b46112ace125" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/asia/canopy/tree/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/asia/canopy/tree/config/SecurityConfig.java" afterDir="false" />
     </list>
     <list id="cec94596-9f8c-4bda-9daa-f1bf04dd2827" name="Changes by daehy" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -287,6 +289,7 @@
       <workItem from="1746946067933" duration="11263000" />
       <workItem from="1747049716277" duration="18000" />
       <workItem from="1747049736136" duration="4536000" />
+      <workItem from="1747146774285" duration="1296000" />
     </task>
     <servers />
   </component>

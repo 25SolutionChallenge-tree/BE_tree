@@ -87,13 +87,11 @@ public class SecurityConfig {
 
         List<String> allowedOrigins = Arrays.asList(
                 "https://www.canopy.asia",
-                "http://www.canopy.asia",
                 "https://api.canopy.asia",
-                "http://api.canopy.asia",
                 "http://localhost:3000",
                 "http://localhost:8080",
-                "http://api.canopy.asia:8080",
-                "https://api.canopy.asia:8080"
+                "https://api.canopy.asia:443",
+                "https://fe-tree-alpha.vercel.app"
         );
 
         configuration.setAllowedOrigins(allowedOrigins);
