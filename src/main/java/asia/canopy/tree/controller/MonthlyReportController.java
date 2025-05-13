@@ -11,12 +11,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.YearMonth;
 
@@ -47,8 +45,30 @@ public class MonthlyReportController {
         int reportYear = (year != null) ? year : currentYearMonth.getYear();
         int reportMonth = (month != null) ? month : currentYearMonth.getMonthValue();
 
-        MonthlyReportDto report = monthlyReportService.generateMonthlyReport(
+        MonthlyReportDto report = monthlyReportService.getOrCreateMonthlyReport(
                 userPrincipal.getId(), reportYear, reportMonth);
+
+        return ResponseEntity.ok(report);
+    }
+
+    @Operation(summary = "월간 리포트 생성", description = "특정 연도와 월의 일기 데이터를 분석하여 새로운 월간 리포트를 생성합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "리포트 생성 성공",
+                    content = @Content(schema = @Schema(implementation = MonthlyReportDto.class))),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자"),
+            @ApiResponse(responseCode = "404", description = "해당 월의 일기가 존재하지 않음")
+    })
+    @PostMapping("/monthly")
+    public ResponseEntity<MonthlyReportDto> createMonthlyReport(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM") String yearMonth) {
+
+        String[] parts = yearMonth.split("-");
+        int year = Integer.parseInt(parts[0]);
+        int month = Integer.parseInt(parts[1]);
+
+        MonthlyReportDto report = monthlyReportService.generateMonthlyReport(
+                userPrincipal.getId(), year, month);
 
         return ResponseEntity.ok(report);
     }

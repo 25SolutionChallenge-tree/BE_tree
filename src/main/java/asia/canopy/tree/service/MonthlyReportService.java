@@ -50,7 +50,29 @@ public class MonthlyReportService {
     private String googleCseEngineId;
 
     /**
-     * 특정 월의 일기를 분석하여 월간 리포트를 생성합니다. 이미 생성된 리포트가 있다면 반환하고, 없다면 새로 생성하여 저장합니다.
+     * 특정 월의 리포트를 조회하고, 없으면 생성합니다. (기존 리포트 우선 활용)
+     *
+     * @param userId 사용자 ID
+     * @param year   연도
+     * @param month  월
+     * @return 월간 리포트 DTO
+     */
+    @Transactional(readOnly = true)
+    public MonthlyReportDto getOrCreateMonthlyReport(Long userId, int year, int month) {
+        // 기존 리포트 조회
+        Optional<MonthlyReport> existingReport = monthlyReportRepository.findByUserUserIdAndYearAndMonth(userId, year, month);
+
+        if (existingReport.isPresent()) {
+            log.info("기존 리포트를 반환합니다: 사용자 ID={}, 연도={}, 월={}", userId, year, month);
+            return convertToDto(existingReport.get());
+        } else {
+            // 리포트가 없으면 새로 생성
+            return generateMonthlyReport(userId, year, month);
+        }
+    }
+
+    /**
+     * 특정 월의 일기를 분석하여 월간 리포트를 생성합니다. 이미 생성된 리포트가 있더라도 새로 생성합니다.
      *
      * @param userId 사용자 ID
      * @param year   연도
@@ -59,13 +81,9 @@ public class MonthlyReportService {
      */
     @Transactional
     public MonthlyReportDto generateMonthlyReport(Long userId, int year, int month) {
-        // 기존 리포트 조회
-        Optional<MonthlyReport> existingReport = monthlyReportRepository.findByUserUserIdAndYearAndMonth(userId, year, month);
-
-        if (existingReport.isPresent()) {
-            log.info("기존 리포트를 반환합니다: 사용자 ID={}, 연도={}, 월={}", userId, year, month);
-            return convertToDto(existingReport.get());
-        }
+        // 사용자 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("사용자를 찾을 수 없습니다."));
 
         // 월의 시작일과 마지막일 계산
         YearMonth yearMonth = YearMonth.of(year, month);
@@ -80,10 +98,6 @@ public class MonthlyReportService {
         }
 
         try {
-            // 사용자 조회
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new ResourceNotFoundException("사용자를 찾을 수 없습니다."));
-
             // 일기를 일별로 그룹화 (Map<일자, Map<일기유형, 일기내용>>)
             Map<LocalDate, Map<QType, String>> diaryEntriesByDate = monthlyDiaries.stream()
                     .collect(Collectors.groupingBy(
@@ -137,6 +151,10 @@ public class MonthlyReportService {
                     hasRisk,
                     recommendations);
 
+            // 기존 리포트가 있으면 삭제
+            monthlyReportRepository.findByUserUserIdAndYearAndMonth(userId, year, month)
+                    .ifPresent(monthlyReportRepository::delete);
+
             // DB에 저장
             MonthlyReport reportEntity = saveMonthlyReport(user, year, month, reportDto);
             log.info("월간 리포트 저장 완료: 사용자 ID={}, 연도={}, 월={}, 리포트 ID={}",
@@ -155,10 +173,6 @@ public class MonthlyReportService {
      */
     @Transactional
     protected MonthlyReport saveMonthlyReport(User user, int year, int month, MonthlyReportDto reportDto) {
-        // 기존 리포트가 있으면 삭제
-        monthlyReportRepository.findByUserUserIdAndYearAndMonth(user.getUserId(), year, month)
-                .ifPresent(monthlyReportRepository::delete);
-
         // 감정 키워드 추출
         List<String> emotionKeywords = reportDto.getEmotionKeywords();
 
@@ -345,24 +359,24 @@ public class MonthlyReportService {
         if (hasRisk) {
             // 정신 건강 위험이 있는 경우
             recommendations.add(new MonthlyReportDto.RecommendationDto(
-                    "우울증 자가진단 테스트 - 보건복지부",
+                    "Depression Self-Assessment Test",
                     "https://www.mentalhealth.go.kr/self/selfTest.do"));
             recommendations.add(new MonthlyReportDto.RecommendationDto(
-                    "스트레스 자가진단 - 국가건강정보포털",
+                    "Stress Self-Diagnosis Test",
                     "https://health.kdca.go.kr/health/pvsnMental/stress/stress.jsp"));
             recommendations.add(new MonthlyReportDto.RecommendationDto(
-                    "불안장애 자가진단 - 국민건강보험",
+                    "Anxiety Disorder Self-Assessment",
                     "https://www.nhis.or.kr/nhis/healthin/wbhea0405m01.do"));
         } else {
             // 정신 건강 위험이 없는 경우
             recommendations.add(new MonthlyReportDto.RecommendationDto(
-                    "MBTI 성격유형 검사 - 16Personalities",
-                    "https://www.16personalities.com/ko"));
+                    "MBTI Personality Type Test - 16Personalities",
+                    "https://www.16personalities.com"));
             recommendations.add(new MonthlyReportDto.RecommendationDto(
-                    "성격강점 검사 - VIA Institute",
+                    "Character Strengths Test - VIA Institute",
                     "https://www.viacharacter.org/"));
             recommendations.add(new MonthlyReportDto.RecommendationDto(
-                    "에니어그램 성격 유형 테스트",
+                    "Enneagram Personality Type Test",
                     "https://www.enneagraminstitute.com/"));
         }
 
@@ -385,7 +399,7 @@ public class MonthlyReportService {
                 "- Choose **exactly 3 to 5** individual emotions that appeared most frequently.\n" +
                 "- **Do not use slashes** (e.g., avoid \"tired/anxious\" — choose only one word per bullet).\n" +
                 "- Use simple, distinct emotion words that best represent the user's overall mood trends.\n\n" +
-                "Output in Korean:\n" +
+                "Output in English (not Korean):\n" +
                 "- A bullet list of exactly 3 to 5 emotion keywords (one per line, no slashes)\n" +
                 "- A concise paragraph (200~300 words) summarizing the emotional flow across the month\n\n" +
                 "Now here is the diary content:\n" + fullText;
@@ -404,12 +418,12 @@ public class MonthlyReportService {
                 "- emotional exhaustion or burnout,\n" +
                 "- anxiety, irritability, or self-doubt,\n" +
                 "- expressions of hopelessness, isolation, or avoidance.\n\n" +
-                "If such risks are detected, write a 200–300 word paragraph in Korean explaining:\n" +
+                "If such risks are detected, write a 200–300 word paragraph in English explaining:\n" +
                 "- what emotional signals suggest these risks,\n" +
                 "- when they appear in the diary (e.g., early/mid/late month),\n" +
                 "- what kind of risk it may indicate (depression, burnout, etc.),\n" +
                 "- and a gentle recommendation to take a self-assessment or seek support.\n\n" +
-                "If no such risks are found, instead write a 200–300 word encouraging paragraph in Korean that:\n" +
+                "If no such risks are found, instead write a 200–300 word encouraging paragraph in English that:\n" +
                 "- highlights signs of emotional resilience, reflection, or recovery,\n" +
                 "- commends the user for emotional self-awareness and regulation,\n" +
                 "- and gently suggests continuing these habits, possibly with a light personality or emotional quiz for insight.\n\n" +
@@ -423,11 +437,11 @@ public class MonthlyReportService {
      */
     private String createPromptForCheckups(boolean riskFlag) {
         if (riskFlag) {
-            return "Suggest a short Korean search phrase for a mental health self-assessment test (3~6 words). " +
-                    "Example: '우울증 자가 진단 테스트', '불안장애 체크리스트'";
+            return "Suggest a short English search phrase for a mental health self-assessment test (3~6 words). " +
+                    "Example: 'depression self assessment test', 'anxiety disorder checklist'";
         } else {
-            return "Suggest a short Korean search phrase for a light personality or emotional quiz (3~6 words). " +
-                    "Example: '성격유형 테스트', '감정 인식 퀴즈'";
+            return "Suggest a short English search phrase for a light personality or emotional quiz (3~6 words). " +
+                    "Example: 'personality type test', 'emotional awareness quiz'";
         }
     }
 
@@ -435,7 +449,7 @@ public class MonthlyReportService {
      * 개요 요약을 위한 프롬프트를 생성합니다.
      */
     private String createPromptForOverview(String emotionSummary, String riskAnalysis) {
-        return "You are an AI assistant generating a short monthly summary for a mental health report in Korean.\n\n" +
+        return "You are an AI assistant generating a short monthly summary for a mental health report in English.\n\n" +
                 "Below are two summaries:\n" +
                 "1. Emotional flow\n" +
                 "2. Mental health risk analysis\n\n" +
@@ -669,8 +683,8 @@ public class MonthlyReportService {
         // 체크업 유형 및 메시지 설정
         String checkupType = hasRisk ? "mental_health_checkup" : "light_personality_quiz";
         String recommendationMessage = hasRisk
-                ? "다음 자가진단 도구를 통해 정신 건강을 체크해보세요:"
-                : "다음 성격 퀴즈를 통해 자신에 대해 더 알아보세요:";
+                ? "Check your mental health with these self-assessment tools:"
+                : "Learn more about yourself with these personality quizzes:";
 
         return MonthlyReportDto.builder()
                 .oneLineSummary(overview.get("one_line_summary").asText())
