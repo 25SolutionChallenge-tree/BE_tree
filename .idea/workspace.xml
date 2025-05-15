@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="893b8e85-0642-4850-96ab-b46112ace125" name="Changes" comment="" />
+    <list default="true" id="893b8e85-0642-4850-96ab-b46112ace125" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/asia/canopy/tree/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/asia/canopy/tree/config/SecurityConfig.java" afterDir="false" />
+    </list>
     <list id="cec94596-9f8c-4bda-9daa-f1bf04dd2827" name="Changes by daehy" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -287,6 +290,7 @@
       <workItem from="1747049736136" duration="4536000" />
       <workItem from="1747146774285" duration="1296000" />
       <workItem from="1747150922270" duration="1419000" />
+      <workItem from="1747226216407" duration="2603000" />
     </task>
     <servers />
   </component>

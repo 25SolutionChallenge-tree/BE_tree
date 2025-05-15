@@ -88,6 +88,7 @@ public class SecurityConfig {
         List<String> allowedOrigins = Arrays.asList(
                 "https://www.canopy.asia",
                 "https://api.canopy.asia",
+                "https://canopy.asia",
                 "http://localhost:3000",
                 "http://localhost:8080",
                 "https://api.canopy.asia:443",
