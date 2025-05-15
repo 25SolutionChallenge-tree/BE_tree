@@ -46,7 +46,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .build().toUriString();
 
         if (!userPrincipal.getUser().isProfileComplete()) {
-            redirectUrl = UriComponentsBuilder.fromUriString("https://www.canopy.asia/complete-profile")
+            redirectUrl = UriComponentsBuilder.fromUriString("https://www.canopy.asia/select-avatar")
                     .queryParam("token", token)
                     .build().toUriString();
         }
