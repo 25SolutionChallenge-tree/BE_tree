@@ -40,13 +40,13 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         }
 
         String token = jwtTokenProvider.generateToken(userPrincipal);
-        String redirectUrl = UriComponentsBuilder.fromUriString("https://canopy.asia/oauth2/redirect")
+        String redirectUrl = UriComponentsBuilder.fromUriString("https://www.canopy.asia/oauth2/redirect")
                 .queryParam("token", token)
                 .queryParam("isProfileComplete", userPrincipal.getUser().isProfileComplete())
                 .build().toUriString();
 
         if (!userPrincipal.getUser().isProfileComplete()) {
-            redirectUrl = UriComponentsBuilder.fromUriString("https://canopy.asia/complete-profile")
+            redirectUrl = UriComponentsBuilder.fromUriString("https://www.canopy.asia/complete-profile")
                     .queryParam("token", token)
                     .build().toUriString();
         }
